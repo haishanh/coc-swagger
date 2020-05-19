@@ -1,0 +1,61 @@
+{
+  "name": "coc-swagger",
+  "version": "0.0.1-development.1",
+  "description": "A coc plugin to improve the Swagger/OpenAPI authoring experience in vim",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/haishanh/coc-swagger.git",
+    "directory": "packages/coc-swagger"
+  },
+  "license": "MIT",
+  "author": "Haishan <haishanhan@gmail.com>",
+  "main": "lib/index.js",
+  "keywords": [
+    "coc.nvim",
+    "coc",
+    "vim",
+    "swagger",
+    "openapi",
+    "api"
+  ],
+  "engines": {
+    "coc": "^0.0.70"
+  },
+  "files": [
+    "lib",
+    "public"
+  ],
+  "scripts": {
+    "build": "rm -rf lib && ncc build src/index.ts -e coc.nvim -o lib"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.6",
+    "@types/ws": "^7.2.4",
+    "get-port": "^5.1.1",
+    "open": "^7.0.4"
+  },
+  "activationEvents": [
+    "onLanguage:yaml",
+    "onLanguage:json",
+    "onCommand:swagger.render"
+  ],
+  "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "coc-swagger configuration",
+      "properties": {
+        "coc-swagger.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable coc-swagger extension"
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "swagger.render",
+        "title": "Render the Swagger/OpenAPI spec"
+      }
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+*.*~
+.DS_Store
+node_modules/
+public/
+experimental/
+deploy_ghpages.sh
+tags
+.eslintcache
+*.log
+!.github
+
+*api.yaml
+petstore.yaml
