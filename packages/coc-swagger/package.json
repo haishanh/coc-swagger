@@ -1,6 +1,6 @@
 {
   "name": "coc-swagger",
-  "version": "0.0.1-development.1",
+  "version": "0.0.1-development.2",
   "description": "A coc plugin to improve the Swagger/OpenAPI authoring experience in vim",
   "repository": {
     "type": "git",

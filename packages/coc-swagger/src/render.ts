@@ -11,7 +11,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 async function getCurrentBufferContent(): Promise<string> {
   const { nvim } = workspace;
   const bufnr = await nvim.call("bufnr", "%");
-  workspace.showMessage(`bufnr ${bufnr}, ${workspace.uri}`);
+  // workspace.showMessage(`bufnr ${bufnr}, ${workspace.uri}`);
   const doc: Document = workspace.getDocument(bufnr);
   // const opts = await nvim.call('coc#util#get_bufoptions', bufnr)
 
