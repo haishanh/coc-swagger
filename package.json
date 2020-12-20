@@ -6,7 +6,8 @@
   "scripts": {
     "start": "yarn workspace client start",
     "info": " yarn workspaces info",
-    "build": " yarn workspaces run build"
+    "build": " yarn workspaces run build",
+    "lint": "yarn workspaces run lint"
   },
   "workspaces": [
     "packages/*"

@@ -1,6 +1,10 @@
 {
   "name": "coc-swagger",
   "version": "0.0.1-development.3",
+  "scripts": {
+    "build": "rm -rf lib && ncc build src/index.ts -e coc.nvim -o lib",
+    "lint": "eslint --fix --cache src"
+  },
   "description": "A coc plugin to improve the Swagger/OpenAPI authoring experience in vim",
   "repository": {
     "type": "git",
@@ -25,9 +29,6 @@
     "lib",
     "public"
   ],
-  "scripts": {
-    "build": "rm -rf lib && ncc build src/index.ts -e coc.nvim -o lib"
-  },
   "devDependencies": {
     "@types/express": "^4.17.6",
     "@types/ws": "^7.2.4",

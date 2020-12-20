@@ -1,10 +1,11 @@
-.DS_STORE
+.*
+!.gitkeep
+!.gitignore
+!.eslintrc.yaml
+!.eslintignore
+
 node_modules
-*~
-*.log
-
 coverage/
-
 packages/server/
 
 01.api.yaml
