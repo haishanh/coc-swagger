@@ -12,6 +12,10 @@ export function start(port: number) {
   const dir = path.resolve(__dirname, "..", "public");
   // const dir =  path.resolve(__dirname, "..", "..", "client", "public");
 
+  app.get("/ping", (_req, res) => {
+    res.json({ ok: 1, staticDir: dir });
+  });
+
   app.use(express.static(dir));
 
   server.listen(port);

@@ -1,7 +1,13 @@
 import * as React from 'react';
-import SwaggerUI from 'swagger-ui-react';
-
+import { useToast } from '@chakra-ui/react';
+import { Loading } from './Loading';
 import 'swagger-ui-react/swagger-ui.css';
+
+const { lazy } = React;
+
+const SwaggerUI = lazy(
+  () => import(/* webpackPreload: true */ 'swagger-ui-react')
+);
 
 type Listener = (d: any) => void;
 
@@ -22,34 +28,64 @@ const sub = {
   },
 };
 
-function setupWebSocket(callback: Listener) {
+function setupWebSocket(
+  callback: Listener,
+  toast: ReturnType<typeof useToast>
+) {
   const host = window.location.host || 'localhost:3000';
   const url = `ws://${host}`;
-  const ws = new WebSocket(url);
-  ws.addEventListener('error', function (ev) {
+  const socket = new WebSocket(url);
+  function onError(ev: WebSocketEventMap['error']) {
     console.log('websocket error', ev);
-  });
-  ws.addEventListener('close', function (ev) {
+    toast({
+      title: 'coc-swagger socket error',
+      status: 'error',
+      duration: 3000,
+      isClosable: true,
+    });
+  }
+  function onClose(ev: WebSocketEventMap['close']) {
     console.log('websocket close', ev);
-  });
-  ws.addEventListener('message', function (ev) {
-    sub.handleData(ev.data);
-  });
-  return sub.subscribe(callback);
-}
+    toast({
+      title: 'coc-swagger server disconnected',
+      status: 'warning',
+      duration: null,
+      isClosable: true,
+    });
+  }
 
-const specInit = {
-  info: {
-    title: 'empty',
-    version: '0.0.0',
-  },
-  openapi: '3.0.0',
-};
+  function onMessage(ev: WebSocketEventMap['message']) {
+    toast({
+      title: 'coc-swagger updating',
+      status: 'success',
+      duration: 2000,
+      isClosable: true,
+    });
+    sub.handleData(ev.data);
+  }
+
+  function onOpen(_ev: WebSocketEventMap['open']) {
+    socket.send(JSON.stringify({ type: 'Hello', message: 'Hello Server!' }));
+  }
+
+  socket.addEventListener('error', onError);
+  socket.addEventListener('close', onClose);
+  socket.addEventListener('message', onMessage);
+  socket.addEventListener('open', onOpen);
+  const unsub = sub.subscribe(callback);
+  return () => {
+    socket.removeEventListener('error', onError);
+    socket.removeEventListener('close', onClose);
+    socket.removeEventListener('message', onMessage);
+    socket.removeEventListener('open', onOpen);
+    unsub();
+  };
+}
 
 const { useState, useEffect, useCallback } = React;
 
 function Spec() {
-  const [spec, setSepc] = useState(specInit);
+  const [spec, setSepc] = useState();
 
   const onComplete = useCallback((system) => {
     const state = system.getState();
@@ -59,26 +95,15 @@ function Spec() {
     document.title = title;
   }, []);
 
+  const toast = useToast();
+
   useEffect(() => {
-    return setupWebSocket((spec: any) => setSepc(spec));
-  }, []);
+    return setupWebSocket((spec: any) => setSepc(spec), toast);
+  }, [toast]);
 
   return (
     <>
-      <SwaggerUI
-        spec={spec}
-        onComplete={onComplete}
-        supportedSubmitMethods={[
-          'get',
-          'put',
-          'post',
-          'delete',
-          'options',
-          'head',
-          'patch',
-          'trace',
-        ]}
-      />
+      {spec ? <SwaggerUI spec={spec} onComplete={onComplete} /> : <Loading />}
     </>
   );
 }

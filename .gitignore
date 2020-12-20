@@ -6,3 +6,6 @@ node_modules
 coverage/
 
 packages/server/
+
+01.api.yaml
+02.api.yaml

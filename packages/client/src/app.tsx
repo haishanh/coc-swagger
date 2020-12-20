@@ -2,13 +2,13 @@ import 'modern-normalize/modern-normalize.css';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Modal from 'react-modal';
 import Root from './components/Root';
 
 const rootEl = document.getElementById('app');
 
-Modal.setAppElement(rootEl);
+// @ts-ignore
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+window.Buffer = window.Buffer || require('buffer').Buffer;
 
-const { createRoot } = ReactDOM;
-const root = createRoot(rootEl);
+const root = ReactDOM.unstable_createRoot(rootEl);
 root.render(<Root />);

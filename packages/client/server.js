@@ -17,7 +17,7 @@ const wss = new WebSocket.Server({ server });
 const { PORT } = process.env;
 const port = PORT ? Number(PORT) : 3000;
 
-config.entry.app.unshift('webpack-hot-middleware/client');
+config.entry.app.import.unshift('webpack-hot-middleware/client');
 config.plugins.push(
   new webpack.HotModuleReplacementPlugin(),
   new webpack.NoEmitOnErrorsPlugin()
@@ -26,18 +26,8 @@ config.plugins.push(
 const compiler = webpack(config);
 // webpack-dev-server config
 const publicPath = config.output.publicPath;
-const stats = {
-  colors: true,
-  version: false,
-  modulesSort: 'issuer',
-  assets: false,
-  cached: false,
-  cachedAssets: false,
-  chunks: false,
-  chunkModules: false,
-};
 
-const options = { publicPath, stats };
+const options = { publicPath };
 
 const wdm = devMiddleware(compiler, options);
 const whm = hotMiddleware(compiler);

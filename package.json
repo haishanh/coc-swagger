@@ -4,15 +4,11 @@
   "license": "MIT",
   "version": "0.0.0",
   "scripts": {
-    "start": "yarn workspace client start"
+    "start": "yarn workspace client start",
+    "info": " yarn workspaces info",
+    "build": " yarn workspaces run build"
   },
   "workspaces": [
     "packages/*"
-  ],
-  "devDependencies": {
-    "@types/node": "^14.0.1",
-    "@zeit/ncc": "^0.22.1",
-    "coc.nvim": "^0.0.77",
-    "typescript": "^3.9.2"
-  }
+  ]
 }

@@ -1,11 +1,12 @@
 import {
   commands,
-  CompleteResult,
+  // CompleteResult,
   ExtensionContext,
-  sources,
+  // sources,
   workspace,
 } from "coc.nvim";
-import { render } from "./render";
+import * as render from "./render";
+import { logger } from "./logger";
 
 let initialBufNumber: number;
 let initialUri: string;
@@ -17,15 +18,17 @@ function registerAutocmd(context: ExtensionContext) {
       event: "BufWritePost",
       request: true,
       callback: async () => {
+        logger.log(`workspace.uri = ${workspace.uri}`);
+
         if (workspace.uri === initialUri) {
-          return await render();
+          return await render.refresh();
         }
 
         const { nvim } = workspace;
         const bufnr = await nvim.call("bufnr", "%");
 
         if (bufnr === initialBufNumber) {
-          return await render();
+          return await render.refresh();
         }
       },
     })
@@ -39,7 +42,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
       initialBufNumber = await nvim.call("bufnr", "%");
       initialUri = workspace.uri;
 
-      await render();
+      await render.render(true);
       registerAutocmd(context);
     })
   );

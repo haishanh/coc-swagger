@@ -3,12 +3,12 @@ const webpack = require('webpack');
 const TerserPlugin = require('terser-webpack-plugin');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const HTMLPlugin = require('html-webpack-plugin');
-const CopyPlugin = require('copy-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const ForkTsCheckerNotifierWebpackPlugin = require('fork-ts-checker-notifier-webpack-plugin');
-// const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const ReactRefreshWebpackPlugin = require('@hsjs/react-refresh-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 
 const pkg = require('./package.json');
 
@@ -50,6 +50,12 @@ const postcssPlugins = () =>
     isDev ? false : require('cssnano')(),
   ].filter(Boolean);
 
+const postcssOptions = { plugins: postcssPlugins() };
+
+const cssExtractPlugin = new MiniCssExtractPlugin({
+  filename: isDev ? '[name].css' : '[name].[contenthash].css',
+});
+
 const bundleAnalyzerPlugin = new BundleAnalyzerPlugin({
   analyzerMode: 'static',
   reportFilename: 'report.html',
@@ -59,31 +65,37 @@ const bundleAnalyzerPlugin = new BundleAnalyzerPlugin({
 const plugins = [
   html,
   definePlugin,
-  new ForkTsCheckerWebpackPlugin({ eslint: false }),
+  new ForkTsCheckerWebpackPlugin(),
   new ForkTsCheckerNotifierWebpackPlugin({
     title: 'TypeScript',
     excludeWarnings: false,
   }),
-  new CopyPlugin([{ from: 'assets/*', flatten: true }]),
   new CleanWebpackPlugin(),
   // chart.js requires moment
   // and we don't need locale stuff in moment
   new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
   // https://github.com/pmmmwh/react-refresh-webpack-plugin
-  isDev ? new ReactRefreshWebpackPlugin({ disableRefreshCheck: true }) : false,
+  isDev
+    ? new ReactRefreshWebpackPlugin({ overlay: { sockIntegration: 'whm' } })
+    : false,
+  isDev ? false : cssExtractPlugin,
   isDev ? false : bundleAnalyzerPlugin,
 ].filter(Boolean);
 
 module.exports = {
   // https://webpack.js.org/configuration/devtool/
   devtool: isDev ? 'eval-source-map' : false,
+
   entry: {
-    // app: ['react-hot-loader/patch', './src/app.js']
-    app: ['./src/app.js'],
+    app: {
+      import: ['./src/app.tsx'],
+    },
   },
   context: __dirname,
   output: {
-    path: path.resolve(__dirname, 'public'),
+    path: isDev
+      ? path.resolve(__dirname, 'public')
+      : path.resolve(__dirname, '..', 'coc-swagger', 'public'),
     filename: isDev ? '[name].js' : '[name].[contenthash].js',
     publicPath: '',
   },
@@ -94,18 +106,15 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
-        loader: 'ts-loader',
-        options: {
-          // disable type checker - we will use it in fork plugin
-          transpileOnly: true,
-        },
+        test: /\.m?js/,
+        resolve: { fullySpecified: false },
       },
       {
-        test: /\.js$/,
+        test: /\.[tj]sx?$/,
         exclude: /node_modules/,
         use: { loader: 'babel-loader', options: { cacheDirectory: true } },
       },
+
       {
         test: /\.(ttf|eot|woff|woff2)(\?.+)?$/,
         use: [{ loader: 'file-loader', options: { name: '[name].[ext]' } }],
@@ -114,15 +123,15 @@ module.exports = {
         test: /\.css$/,
         exclude: /\.module\.css$/,
         use: [
-          'style-loader',
+          isDev ? { loader: 'style-loader' } : MiniCssExtractPlugin.loader,
           { loader: 'css-loader' },
-          { loader: 'postcss-loader', options: { plugins: postcssPlugins } },
+          { loader: 'postcss-loader', options: { postcssOptions } },
         ].filter(Boolean),
       },
       {
         test: /\.module\.css$/,
         use: [
-          'style-loader',
+          isDev ? { loader: 'style-loader' } : MiniCssExtractPlugin.loader,
           {
             loader: 'css-loader',
             options: {
@@ -133,42 +142,21 @@ module.exports = {
               },
             },
           },
-          {
-            loader: 'postcss-loader',
-            options: { plugins: postcssPlugins },
-          },
+          { loader: 'postcss-loader', options: { postcssOptions } },
         ].filter(Boolean),
       },
     ],
   },
   optimization: {
     moduleIds: isDev ? 'named' : 'hashed',
-    // runtimeChunk: 'single',
-    // splitChunks: {
-    //   chunks: 'all',
-    //   cacheGroups: {
-    //     'core-js': {
-    //       test(module, _chunks) {
-    //         return (
-    //           module.resource &&
-    //           module.resource.indexOf('node_modules/core-js/') >= 0
-    //         );
-    //       },
-    //     },
-    //     react: {
-    //       test(module, _chunks) {
-    //         return (
-    //           module.resource &&
-    //           (module.resource.indexOf('node_modules/@hot-loader/react-dom/') >=
-    //             0 ||
-    //             module.resource.indexOf('node_modules/react-dom/') >= 0 ||
-    //             module.resource.indexOf('node_modules/react/') >= 0)
-    //         );
-    //       },
-    //     },
-    //   },
-    // },
-    minimizer: [new TerserPlugin()],
+    minimizer: [new TerserPlugin(), new CssMinimizerPlugin()],
   },
   plugins,
+  bail: true,
+  cache: {
+    type: 'filesystem',
+    buildDependencies: {
+      config: [__filename],
+    },
+  },
 };

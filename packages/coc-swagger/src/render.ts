@@ -1,41 +1,19 @@
-import { workspace, Document } from "coc.nvim";
-import * as yaml from "yaml";
+import { workspace } from "coc.nvim";
 import open from "open";
-import getPort from "get-port";
+import detect from "detect-port-alt";
+import { getCurrentBufferContent } from "./util";
 
 import * as server from "./server";
 import * as ws from "./ws";
 
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
-async function getCurrentBufferContent(): Promise<string> {
-  const { nvim } = workspace;
-  const bufnr = await nvim.call("bufnr", "%");
-  // workspace.showMessage(`bufnr ${bufnr}, ${workspace.uri}`);
-  const doc: Document = workspace.getDocument(bufnr);
-  // const opts = await nvim.call('coc#util#get_bufoptions', bufnr)
-
-  let cnt = {};
-  try {
-    cnt = yaml.parse(doc.content);
-    return JSON.stringify(cnt);
-  } catch (err) {
-    // TODO diagnostic info?
-    workspace.showMessage(
-      "Failed to parse buffer content as yaml or json",
-      "error"
-    );
-    throw new Error("Failed to parse API spec");
-  }
-}
+// const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 let port: number;
 
-export async function render() {
+export async function render(shouldOpen = false) {
   if (!port) {
-    workspace.showMessage("starting server");
-    port = await getPort();
-    workspace.showMessage(`${port}`);
+    // workspace.showMessage("starting server");
+    port = await detect(55555, "localhost");
 
     try {
       server.start(port);
@@ -46,13 +24,13 @@ export async function render() {
       );
       throw e;
     }
-
-    const url = `http://localhost:${port}`;
-    await sleep(0);
-    open(url);
-    await sleep(2000);
   }
 
+  const url = `http://localhost:${port}`;
+  if (shouldOpen) open(url);
+}
+
+export async function refresh() {
   const s = await getCurrentBufferContent();
-  ws.send(s);
+  ws.broadcast(s);
 }
