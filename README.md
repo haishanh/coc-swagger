@@ -1,1 +1,15 @@
-see [packages/coc-swagger](https://github.com/haishanh/coc-swagger/tree/master/packages/coc-swagger)
+## Install
+
+```vim
+:CocInstall coc-swagger
+```
+
+## Usage
+
+```vim
+" when you are editing a Swagger/OpenAPI specification file
+:CocCommand swagger.render
+
+" tips: add a (slightly) short command
+command -nargs=0 Swagger :CocCommand swagger.render
+```
