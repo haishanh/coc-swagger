@@ -38,7 +38,7 @@
     "express": "^4.17.1",
     "open": "^7.0.4",
     "typescript": "^4.1.3",
-    "ws": "^7.4.1"
+    "ws": "^7.4.6"
   },
   "activationEvents": [
     "onLanguage:yaml",
