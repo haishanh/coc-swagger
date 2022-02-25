@@ -34,7 +34,8 @@ function setupWebSocket(
 ) {
   const host = window.location.host || 'localhost:3000';
   const url = `ws://${host}`;
-  const socket = new WebSocket(url);
+  const socket = new WebSocket(url, 'coc-swagger');
+  // const socket = new WebSocket(url);
   function onError(ev: WebSocketEventMap['error']) {
     console.log('websocket error', ev);
     toast({

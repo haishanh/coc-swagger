@@ -15,7 +15,7 @@ curl 'https://raw.githubusercontent.com/OAI/OpenAPI-Specification/master/example
 
 ## by posting the API content to this endpoint
 ## the websocket server will send the content to it's clients
-curl localhost:3000/doc -X POST -H "content-type: text/yaml" --data-binary "@01.api.yaml"
+curl localhost:3000/doc -X POST --data-binary "@01.api.yaml"
 
 # install deps / examples:
 yarn workspace client add react
