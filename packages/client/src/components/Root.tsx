@@ -1,17 +1,18 @@
 import * as React from 'react';
+import { Toaster } from 'sonner';
 import Spec from './Spec';
-import { ChakraProvider } from '@chakra-ui/react';
 import { Loading } from './Loading';
 
 const { Suspense } = React;
 
 function Root() {
   return (
-    <ChakraProvider>
+    <>
+      <Toaster position="bottom-center" />
       <Suspense fallback={<Loading />}>
         <Spec />
       </Suspense>
-    </ChakraProvider>
+    </>
   );
 }
 

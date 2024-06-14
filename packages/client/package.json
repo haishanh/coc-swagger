@@ -21,7 +21,6 @@
   "private": true,
   "license": "MIT",
   "dependencies": {
-    "@chakra-ui/react": "2.8.2",
     "buffer": "6.0.3",
     "clsx": "^2.1.1",
     "core-js": "3.37.1",
@@ -33,6 +32,7 @@
     "react-dom": "18.3.1",
     "react-feather": "^2.0.3",
     "react-modal": "3.16.1",
+    "sonner": "1.5.0",
     "swagger-ui-react": "5.17.14",
     "yaml": "2.4.5"
   },

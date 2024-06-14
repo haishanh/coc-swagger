@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useToast } from '@chakra-ui/react';
+import { toast } from 'sonner';
 import { Loading } from './Loading';
 import 'swagger-ui-react/swagger-ui.css';
 import { SwaggerUIProps } from 'swagger-ui-react';
@@ -27,37 +27,22 @@ const sub = {
   },
 };
 
-function setupWebSocket(callback: Listener, toast: ReturnType<typeof useToast>) {
+function setupWebSocket(callback: Listener) {
   const host = window.location.host || 'localhost:3000';
   const url = `ws://${host}`;
   const socket = new WebSocket(url, 'coc-swagger');
   // const socket = new WebSocket(url);
   function onError(ev: WebSocketEventMap['error']) {
     console.log('websocket error', ev);
-    toast({
-      title: 'coc-swagger socket error',
-      status: 'error',
-      duration: 3000,
-      isClosable: true,
-    });
+    toast.error('coc-swagger socket error');
   }
   function onClose(ev: WebSocketEventMap['close']) {
     console.log('websocket close', ev);
-    toast({
-      title: 'coc-swagger server disconnected',
-      status: 'warning',
-      duration: null,
-      isClosable: true,
-    });
+    toast.error('coc-swagger server disconnected');
   }
 
   function onMessage(ev: WebSocketEventMap['message']) {
-    toast({
-      title: 'coc-swagger updating',
-      status: 'success',
-      duration: 2000,
-      isClosable: true,
-    });
+    toast.success('coc-swagger updating');
     sub.handleData(ev.data);
   }
 
@@ -92,11 +77,9 @@ function Spec() {
     document.title = title;
   }, []);
 
-  const toast = useToast();
-
   useEffect(() => {
-    return setupWebSocket((spec) => setSepc(spec), toast);
-  }, [toast]);
+    return setupWebSocket((spec) => setSepc(spec));
+  }, []);
 
   return <>{spec ? <SwaggerUI spec={spec} onComplete={onComplete} /> : <Loading />}</>;
 }
