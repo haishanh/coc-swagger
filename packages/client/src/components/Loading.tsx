@@ -1,33 +1,24 @@
-/** @jsx jsx */
-// import * as React from 'react';
-import { css, jsx } from '@emotion/react';
+import * as React from 'react';
+import { Ghost } from './Ghost';
 
-import { Ghost } from 'react-kawaii';
+const style = {
+  position: 'fixed',
+  top: 0,
+  bottom: 0,
+  left: 0,
+  right: 0,
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  paddingTop: 100,
+  background: '#f3f3f3',
+} as const;
 
 export function Loading() {
   return (
-    <div
-      css={css`
-        position: fixed;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding-top: 100px;
-        background: #f3f3f3;
-      `}
-    >
+    <div style={style}>
       <Ghost size={240} mood="blissful" color="#E0E4E8" />
-      <p
-        css={css`
-          margin: 1em auto;
-        `}
-      >
-        Contacting coc-swagger server...
-      </p>
+      <p style={{ margin: '1em auto' }}>Contacting coc-swagger server...</p>
     </div>
   );
 }

@@ -2,14 +2,13 @@ import * as React from 'react';
 import { useToast } from '@chakra-ui/react';
 import { Loading } from './Loading';
 import 'swagger-ui-react/swagger-ui.css';
+import { SwaggerUIProps } from 'swagger-ui-react';
 
 const { lazy } = React;
 
-const SwaggerUI = lazy(
-  () => import(/* webpackPreload: true */ 'swagger-ui-react')
-);
+const SwaggerUI = lazy(() => import('swagger-ui-react'));
 
-type Listener = (d: any) => void;
+type Listener = (d: SwaggerUIProps['spec']) => void;
 
 const sub = {
   subscribers: [],
@@ -28,10 +27,7 @@ const sub = {
   },
 };
 
-function setupWebSocket(
-  callback: Listener,
-  toast: ReturnType<typeof useToast>
-) {
+function setupWebSocket(callback: Listener, toast: ReturnType<typeof useToast>) {
   const host = window.location.host || 'localhost:3000';
   const url = `ws://${host}`;
   const socket = new WebSocket(url, 'coc-swagger');
@@ -65,7 +61,7 @@ function setupWebSocket(
     sub.handleData(ev.data);
   }
 
-  function onOpen(_ev: WebSocketEventMap['open']) {
+  function onOpen(/* ev: WebSocketEventMap['open'] */) {
     socket.send(JSON.stringify({ type: 'Hello', message: 'Hello Server!' }));
   }
 
@@ -86,9 +82,9 @@ function setupWebSocket(
 const { useState, useEffect, useCallback } = React;
 
 function Spec() {
-  const [spec, setSepc] = useState();
+  const [spec, setSepc] = useState<SwaggerUIProps['spec']>();
 
-  const onComplete = useCallback((system) => {
+  const onComplete: SwaggerUIProps['onComplete'] = useCallback((system) => {
     const state = system.getState();
     // state is an immutablejs data
     // const version = state.getIn(['spec', 'json', 'info', 'version']);
@@ -99,14 +95,10 @@ function Spec() {
   const toast = useToast();
 
   useEffect(() => {
-    return setupWebSocket((spec: any) => setSepc(spec), toast);
+    return setupWebSocket((spec) => setSepc(spec), toast);
   }, [toast]);
 
-  return (
-    <>
-      {spec ? <SwaggerUI spec={spec} onComplete={onComplete} /> : <Loading />}
-    </>
-  );
+  return <>{spec ? <SwaggerUI spec={spec} onComplete={onComplete} /> : <Loading />}</>;
 }
 
 export default Spec;
